@@ -1,26 +1,72 @@
-import express from 'express'
-import * as dotenv from 'dotenv'
-dotenv.config()
-import cors from 'cors'
-import db from './src/db/index.js'
-import router from './src/router/index.js'
+// import express from 'express';
+// import router from './src/routes/routes.js';
+// import bodyParser from 'body-parser';
+// import mongoose from 'mongoose';
+// import dotenv from 'dotenv';
+// import { Server } from 'socket.io';
+// import http from 'http';
+const express=require('express')
+const router=require('./src/routes/routes.js')
+const bodyParser=require('body-parser')
+const mongoose=require("mongoose")
+const dotenv = require('dotenv')
+const {Server} =require('socket.io')
+const http =require('http')
+const deviceController=require("./src/controllers/device.controller")
+// const ngrok = require('ngrok');
 
-const PORT = 4000 || process.env.PORT
-const HOST = process.env.HOST
-const App = express();
+dotenv.config();
+const app = express();
+const PORT = 8080;
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, { cors: { origin: '*' } });
 
-db.then(() => {
-    console.log('started')
-}).catch((error) => console.log(error))
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-// default json format middleware
-App.use(express.json())
-App.use(cors())
-App.use("/api", router)
+app.use(express.static('src/ui'));
 
-App.get('/api', (req, res) => res.status(200).json({ message: "Server started" }))
+app.use('/api', router);
 
 
-App.listen(PORT, () => {
-    console.log(`Listening at http://${HOST}:${PORT}/api`)
-})
+
+io.on('connection', socket => {
+  socket.emit('request_for_devices_id');
+
+  socket.on('disconnect', () => {
+    console.log('Disconnected');
+  });
+
+  socket.on('buttonState', value => {
+    deviceController.updateDevicePin(value)
+    socket.to(value.devicesId.toString()).emit('buttonState', value);
+  });
+
+  socket.on('join_me', data => {
+    const devicesId = data.devicesId.toString();
+    socket.join(devicesId);
+  });
+
+  socket.on('pin_state', data => {
+    console.log('data: ', data);
+    deviceController.updateDevicePin(value)
+    socket.to(data.devicesId.toString()).emit('pin_state', data);
+  });
+  socket.on('message', function (msg) {
+    console.log('message: ' + msg);
+  });
+});
+
+mongoose.connect(process.env.DB_CON_STRING, { useNewUrlParser: true }, err => {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log('Successfully Connected to the database');
+  }
+});
+
+httpServer.listen(PORT, () => {
+  console.log('Running on : ', httpServer.address());
+});
+// const url=await ngrok.connect(8080)
+// console.log(url,"urll");
