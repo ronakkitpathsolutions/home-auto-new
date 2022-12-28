@@ -46,6 +46,10 @@ const deviceSchema =new mongoose.Schema({
         "watt":''
       }
     ]
+  },
+  is_deleted:{
+    type: Boolean,
+    default:false
   }
 },{
     timestamps: true
