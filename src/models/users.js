@@ -18,7 +18,11 @@ const userSchema =new mongoose.Schema({
   limit:{
     type:Number
   },
-  devices:[{type:mongoose.Schema.Types.ObjectId,ref:"Device"}]
+  devices:[{type:mongoose.Schema.Types.ObjectId,ref:"Device"}],
+  is_deleted:{
+    type: Boolean,
+    default:false
+  }
 },{
     timestamps: true
 });

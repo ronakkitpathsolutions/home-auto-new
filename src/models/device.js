@@ -8,10 +8,6 @@ const deviceSchema =new mongoose.Schema({
   name: {
     type: String,
   },
-  status: {
-    type: Boolean,
-    default:true
-  },
   pins: {
     type: Array,
     default:[
@@ -23,7 +19,8 @@ const deviceSchema =new mongoose.Schema({
         "status":false,
         "scheduleStartDateTime":'',
         "scheduleStopDateTime":'',
-        "watt":''
+        "watt":'',
+        "limit":''
       },
       {
         "pinId": 14,
@@ -33,7 +30,8 @@ const deviceSchema =new mongoose.Schema({
         "status":false,
         "scheduleStartDateTime":'',
         "scheduleStopDateTime":'',
-        "watt":''
+        "watt":'',
+        "limit":''
       },
       {
         "pinId": 16,
@@ -43,9 +41,14 @@ const deviceSchema =new mongoose.Schema({
         "status":false,
         "scheduleStartDateTime":'',
         "scheduleStopDateTime":'',
-        "watt":''
+        "watt":'',
+        "limit":''
       }
     ]
+  },
+  is_deleted:{
+    type: Boolean,
+    default:false
   }
 },{
     timestamps: true

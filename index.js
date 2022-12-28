@@ -44,6 +44,7 @@ io.on('connection', socket => {
 
   socket.on('join_me', data => {
     const devicesId = data.devicesId.toString();
+    deviceController.deviceRegister(devicesId)
     socket.join(devicesId);
   });
 

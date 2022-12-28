@@ -30,7 +30,7 @@ exports.userRegister = async(req, res) => {
 };
 
 exports.getUsers=async(req,res)=>{
-  const userData=await User.find().populate('devices')
+  const userData=await User.find({"id_deleted":false}).populate('devices')
   return res
         .status(SUCCESS)
         .json(successResponseHandle(userData, 'All users'))
@@ -44,7 +44,7 @@ exports.getUserDevice=async(req,res)=>{
 }
 
 exports.deleteUser = (req,res) => {
-  User.remove({ _id: req.body.id }), function (error, data) {
+  User.findOneAndUpdate({_id:req.body.user_id}, {$set:{"is_deleted":true}}, function (error, data) {
     if (error) {
       return res
         .status(INVELID_JSON)
@@ -52,7 +52,7 @@ exports.deleteUser = (req,res) => {
     } else {
       return res
         .status(SUCCESS)
-        .json(successResponseHandle(data, 'User removed successfully'));
+        .json(successResponseHandle(data, 'Delete successfully'));
     }
-  }
+  });
 };

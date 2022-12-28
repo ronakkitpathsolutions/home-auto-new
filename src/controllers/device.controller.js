@@ -7,14 +7,18 @@ const {
 
 const Device=require('../models/device')
 
-exports.deviceRegister = async(req, res) => {
+exports.deviceRegister = async(data) => {
     const serial_no_exist=await Device.find({serial_number:req.body.serial_number})
     if(serial_no_exist.length>0) {
         return res
     .status(INVELID_JSON)
     .json(successResponseHandle({ message: "Device already exist" }));
     } 
-    var device = new Device(req.body);
+    const insert_device_data={
+      serial_number:data,
+      name:"my device"
+    }
+    const device = new Device(req.body);
     await device.save(function (err, result) {
       if (err) {
         return res
@@ -29,7 +33,7 @@ exports.deviceRegister = async(req, res) => {
   };
 
 exports.getDevices=async(req,res)=>{
-    const deviceData=await Device.find()
+    const deviceData=await Device.find({"is_deleted":false})
     return res
           .status(SUCCESS)
           .json(successResponseHandle(deviceData, 'All Devices'))
@@ -50,7 +54,7 @@ exports.updateDevice = (req,res) => {
 };
 
 exports.deleteDevice = (req,res) => {
-  Device.remove({ serial_number: req.body.serial_number }), function (error, data) {
+  Device.findOneAndUpdate({_id:req.body.serial_number}, {$set:{"is_deleted":true}}, function (error, data) {
     if (error) {
       return res
         .status(INVELID_JSON)
@@ -58,9 +62,9 @@ exports.deleteDevice = (req,res) => {
     } else {
       return res
         .status(SUCCESS)
-        .json(successResponseHandle(data, 'Device removed successfully'));
+        .json(successResponseHandle(data, 'Delete successfully'));
     }
-  }
+  });
 };
 
 exports.updateDevicePin = (data) => {
