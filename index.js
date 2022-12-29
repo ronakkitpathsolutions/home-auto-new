@@ -13,6 +13,8 @@ const dotenv = require('dotenv')
 const {Server} =require('socket.io')
 const http =require('http')
 const deviceController=require("./src/controllers/device.controller")
+const historyController=require("./src/controllers/history.controller")
+
 // const ngrok = require('ngrok');
 
 dotenv.config();
@@ -39,6 +41,8 @@ io.on('connection', socket => {
 
   socket.on('buttonState', value => {
     deviceController.updateDevicePin(value)
+    historyController.CreateAndUpdateHistory(value)
+    
     socket.to(value.devicesId.toString()).emit('buttonState', value);
   });
 
@@ -50,7 +54,8 @@ io.on('connection', socket => {
 
   socket.on('pin_state', data => {
     console.log('data: ', data);
-    deviceController.updateDevicePin(value)
+    deviceController.updateDevicePin(data)
+    historyController.CreateAndUpdateHistory(data)
     socket.to(data.devicesId.toString()).emit('pin_state', data);
   });
   socket.on('message', function (msg) {

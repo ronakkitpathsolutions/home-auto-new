@@ -19,12 +19,12 @@ router.get('/getMyDevice',userController.getUserDevice)
 router.put('/deleteUser',userController.deleteUser)
 router.put('/updatePin',deviceController.updateDevice)
 router.put('/scheduleTime',deviceController.scheduleTime)
+router.get('/getUserHistory',historyController.getHistory)
+router.get('/availableDevices',deviceController.getAvailableDevice)
 
 
 
-
-
-
+router.post('/addHistory',historyController.CreateAndUpdateHistory)
 
 // router.post('/hardware/online', getHardwareOnline);
 
