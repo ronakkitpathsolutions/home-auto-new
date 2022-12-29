@@ -8,7 +8,7 @@ const {
 const Device = require('../models/device');
 const User = require('../models/users.js');
 
-exports.deviceRegister = async data => {
+exports.deviceRegister = async (req, res) => {
   const serial_no_exist = await Device.find({
     serial_number: req.body.serial_number,
   });
@@ -18,19 +18,20 @@ exports.deviceRegister = async data => {
       .json(successResponseHandle({ message: 'Device already exist' }));
   }
   const insert_device_data = {
-    serial_number: data,
+    serial_number: req.body.serial_number,
     name: 'my device',
   };
-  const device = new Device(req.body);
-  await device.save(function (err, result) {
-    if (err) {
+  const device = new Device(insert_device_data);
+
+  await device.save(function (error, data) {
+    if (error) {
       return res
         .status(INVELID_JSON)
-        .json(successResponseHandle({ message: err.message }));
+        .json(successResponseHandle({ message: error.message }));
     } else {
       return res
         .status(SUCCESS)
-        .json(successResponseHandle(result, 'Register successfully'));
+        .json(successResponseHandle(data, 'create successfully'));
     }
   });
 };
@@ -80,19 +81,8 @@ exports.deleteDevice = (req, res) => {
 
 exports.updateDevicePin = data => {
   Device.updateOne(
-    { serial_number: data.serial_number, 'pins.pinId': data.pin_Id },
-    { $set: { 'pins.$.status': data.status } },
-    function (error, data) {
-      if (error) {
-        return res
-          .status(INVELID_JSON)
-          .json(successResponseHandle({ message: error.message }));
-      } else {
-        return res
-          .status(SUCCESS)
-          .json(successResponseHandle(data, 'Pin update successfully'));
-      }
-    },
+    { serial_number: data.serial_number, 'pins.pinId': data.pinId },
+    { $set: { 'pins.$.status': data.value } },
   );
 };
 

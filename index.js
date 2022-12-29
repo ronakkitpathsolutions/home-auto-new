@@ -5,15 +5,15 @@
 // import dotenv from 'dotenv';
 // import { Server } from 'socket.io';
 // import http from 'http';
-const express=require('express')
-const router=require('./src/routes/routes.js')
-const bodyParser=require('body-parser')
-const mongoose=require("mongoose")
-const dotenv = require('dotenv')
-const {Server} =require('socket.io')
-const http =require('http')
-const deviceController=require("./src/controllers/device.controller")
-const historyController=require("./src/controllers/history.controller")
+const express = require('express');
+const router = require('./src/routes/routes.js');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const { Server } = require('socket.io');
+const http = require('http');
+const deviceController = require('./src/controllers/device.controller');
+const historyController = require('./src/controllers/history.controller');
 
 // const ngrok = require('ngrok');
 
@@ -30,9 +30,8 @@ app.use(express.static('src/ui'));
 
 app.use('/api', router);
 
-
-
 io.on('connection', socket => {
+  console.log('connect', socket.id);
   socket.emit('request_for_devices_id');
 
   socket.on('disconnect', () => {
@@ -40,22 +39,23 @@ io.on('connection', socket => {
   });
 
   socket.on('buttonState', value => {
-    deviceController.updateDevicePin(value)
-    historyController.CreateAndUpdateHistory(value)
-    
+    console.log('value: ', value);
     socket.to(value.devicesId.toString()).emit('buttonState', value);
+
+    deviceController.updateDevicePin(value);
+    historyController.CreateAndUpdateHistory(value);
   });
 
   socket.on('join_me', data => {
     const devicesId = data.devicesId.toString();
-    deviceController.deviceRegister(devicesId)
+    // deviceController.deviceRegister(devicesId)
     socket.join(devicesId);
   });
 
   socket.on('pin_state', data => {
     console.log('data: ', data);
-    deviceController.updateDevicePin(data)
-    historyController.CreateAndUpdateHistory(data)
+    deviceController.updateDevicePin(data);
+    historyController.CreateAndUpdateHistory(data);
     socket.to(data.devicesId.toString()).emit('pin_state', data);
   });
   socket.on('message', function (msg) {
